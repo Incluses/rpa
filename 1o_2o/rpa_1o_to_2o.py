@@ -24,7 +24,7 @@ db_url_2ano = os.getenv("DATABASE_URL_2ano")
 try:
     # Conecta ao banco de dados do 1º ano.
     conn_1ano = psycopg2.connect(
-        user=user_1ano,
+        user=user_1ano, 
         host=host_1ano,
         port=port_1ano,
         password=password_1ano,
@@ -49,17 +49,16 @@ try:
         # Define os valores para a atualização da tabela 'situacao_trabalhista' no banco do 2º ano (nome e id).
         values = (df_situacao_trabalhista_1ano['nome'][i], df_situacao_trabalhista_1ano['id'][i])
 
-        # Prepara e executa a query de atualização no banco de dados do 2º ano, atualizando o nome baseado no id.
-        update_query = """UPDATE public.situacao_trabalhista
-                          SET nome = %s
-                          WHERE id = %s;"""
-        cursor_2ano.execute(update_query, values)
-
-        # Se não tiver atualização, insere um novo registro com id e permissão.
-        if cursor_2ano.rowcount == 0:  
-            insert_query = """INSERT INTO public.situacao_trabalhista (id, nome)
-                              VALUES (%s, %s);"""
-            cursor_2ano.execute(insert_query, (df_situacao_trabalhista_1ano['id'][i], df_situacao_trabalhista_1ano['nome'][i]))
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.situacao_trabalhista (nome, id) 
+            VALUES (%s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET nome = EXCLUDED.nome, id = EXCLUDED.id
+        """
+        
+        # Executando o comando de upsert
+        cursor_2ano.execute(upsert_query, values)
 
     # Confirma as alterações no banco de dados do 2º ano.
     conn_2ano.commit()
@@ -99,17 +98,16 @@ try:
         # Define os valores para a atualização da tabela 'tipo_vaga' no banco do 2º ano (nome e id).
         values = (df_tipo_vaga_1ano['nome'][i], df_tipo_vaga_1ano['id'][i])
 
-        # Prepara e executa a query de atualização no banco de dados do 2º ano, atualizando o nome baseado no id.
-        update_query = """UPDATE public.tipo_vaga
-                          SET nome = %s
-                          WHERE id = %s;"""
-        cursor_2ano.execute(update_query, values)
-
-        # Se não tiver atualização, insere um novo registro com id e permissão.
-        if cursor_2ano.rowcount == 0:  
-            insert_query = """INSERT INTO public.tipo_vaga (id, nome)
-                              VALUES (%s, %s);"""
-            cursor_2ano.execute(insert_query, (df_tipo_vaga_1ano['id'][i], df_tipo_vaga_1ano['nome'][i]))
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.tipo_vaga (nome, id) 
+            VALUES (%s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET nome = EXCLUDED.nome, id = EXCLUDED.id
+        """
+        
+        # Executando o comando de upsert
+        cursor_2ano.execute(upsert_query, values)
 
     # Confirma as alterações no banco de dados do 2º ano.
     conn_2ano.commit()
@@ -150,17 +148,16 @@ try:
         # Define os valores para a atualização da tabela 'setor' no banco do 2º ano (nome e id).
         values = (df_setor_1ano['nome'][i], df_setor_1ano['id'][i])
 
-        # Prepara e executa a query de atualização no banco de dados do 2º ano, atualizando o nome baseado no id.
-        update_query = """UPDATE public.setor
-                          SET nome = %s
-                          WHERE id = %s;"""
-        cursor_2ano.execute(update_query, values)
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.setor (nome, id) 
+            VALUES (%s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET nome = EXCLUDED.nome, id = EXCLUDED.id
+        """
 
-        # Se não tiver atualização, insere um novo registro com id e permissão.
-        if cursor_2ano.rowcount == 0:  
-            insert_query = """INSERT INTO public.setor (id, nome)
-                              VALUES (%s, %s);"""
-            cursor_2ano.execute(insert_query, (df_setor_1ano['id'][i], df_setor_1ano['nome'][i]))
+        # Executando o comando de upsert
+        cursor_2ano.execute(upsert_query, values)
 
     # Confirma as alterações no banco de dados do 2º ano.
     conn_2ano.commit()
@@ -200,17 +197,16 @@ try:
         # Define os valores para a atualização da tabela 'tipo_arquivo' no banco do 2º ano (nome e id).
         values = (df_tipo_arquivo_1ano['nome'][i], df_tipo_arquivo_1ano['id'][i])
 
-        # Prepara e executa a query de atualização no banco de dados do 2º ano, atualizando o nome baseado no id.
-        update_query = """UPDATE public.tipo_arquivo
-                          SET nome = %s
-                          WHERE id = %s;"""
-        cursor_2ano.execute(update_query, values)
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.tipo_arquivo (nome, id) 
+            VALUES (%s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET nome = EXCLUDED.nome, id = EXCLUDED.id
+        """
 
-        # Se não tiver atualização, insere um novo registro com id e permissão.
-        if cursor_2ano.rowcount == 0:  
-            insert_query = """INSERT INTO public.tipo_arquivo (id, nome)
-                              VALUES (%s, %s);"""
-            cursor_2ano.execute(insert_query, (df_tipo_arquivo_1ano['id'][i], df_tipo_arquivo_1ano['nome'][i]))
+        # Executando o comando de upsert
+        cursor_2ano.execute(upsert_query, values)
 
     # Confirma as alterações no banco de dados do 2º ano.
     conn_2ano.commit()
@@ -247,20 +243,20 @@ try:
     cursor_2ano = conn_2ano.cursor()
 
     for i in range(len(df_permissao_curso_1ano)):
-        # Define os valores para a atualização da tabela 'permissao_curso' no banco do 2º ano (nome e id).
-        values = (df_permissao_curso_1ano['nome'][i], df_permissao_curso_1ano['id'][i])
 
-        # Prepara e executa a query de atualização no banco de dados do 2º ano, atualizando o nome baseado no id.
-        update_query = """UPDATE public.permissao_curso
-                          SET permissao = %s
-                          WHERE id = %s;"""
-        cursor_2ano.execute(update_query, values)
+        # Define os valores para a atualização da tabela 'permissao_curso' no banco do 2º ano (permissao e id).
+        values = (bool(df_permissao_curso_1ano['permissao'][i]), df_permissao_curso_1ano['id'][i], df_permissao_curso_1ano['fk_curso_id'][i])
 
-        # Se não tiver atualização, insere um novo registro com id e permissão.
-        if cursor_2ano.rowcount == 0:  
-            insert_query = """INSERT INTO public.permissao_curso (id, permissao)
-                              VALUES (%s, %s);"""
-            cursor_2ano.execute(insert_query, (df_permissao_curso_1ano['id'][i], df_permissao_curso_1ano['permissao'][i]))
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.permissao_curso (permissao, id, fk_curso_id) 
+            VALUES (%s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET permissao = EXCLUDED.permissao, fk_curso_id = EXCLUDED.fk_curso_id
+        """
+
+        # Executando o comando de upsert
+        cursor_2ano.execute(upsert_query, values)
 
     # Confirma as alterações no banco de dados do 2º ano.
     conn_2ano.commit()
@@ -298,19 +294,18 @@ try:
 
     for i in range(len(df_permissao_vaga_1ano)):
         # Define os valores para a atualização da tabela 'permissao_vaga' no banco do 2º ano (nome e id).
-        values = (df_permissao_vaga_1ano['nome'][i], df_permissao_vaga_1ano['id'][i])
+        values = (bool(df_permissao_vaga_1ano['permissao'][i]), df_permissao_vaga_1ano['id'][i], df_permissao_vaga_1ano['id_vaga'][i])
 
-        # Prepara e executa a query de atualização no banco de dados do 2º ano, atualizando o nome baseado no id.
-        update_query = """UPDATE public.permissao_vaga
-                          SET permissao = %s
-                          WHERE id = %s;"""
-        cursor_2ano.execute(update_query, values)
-
-        # Se não tiver atualização, insere um novo registro com id e permissão.
-        if cursor_2ano.rowcount == 0:  
-            insert_query = """INSERT INTO public.permissao_vaga (id, permissao)
-                              VALUES (%s, %s);"""
-            cursor_2ano.execute(insert_query, (df_permissao_vaga_1ano['id'][i], df_permissao_vaga_1ano['permissao'][i]))
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.permissao_vaga (permissao, id, id_vaga) 
+            VALUES (%s, %s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET permissao = EXCLUDED.permissao, id_vaga = EXCLUDED.id_vaga
+        """
+        
+        # Executando o comando de upsert
+        cursor_2ano.execute(upsert_query, values)
 
     # Confirma as alterações no banco de dados do 2º ano.
     conn_2ano.commit()
