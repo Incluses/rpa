@@ -11,22 +11,20 @@ def tipo_vaga():
 
 
     for i in range(len(df_tipo_vaga_bd2)):
+
         # Lendo os valores de cada linha do dataframe que contém as informações da tabela tipo_vaga do 2ano
         values2o = (df_tipo_vaga_bd2['nome'][i], df_tipo_vaga_bd2['id'][i])
-        
-        # Query para atualizar a tabela do 1o com as informações do 2o
-        update_query = "UPDATE public.tipo_vaga SET nome = %s WHERE id = %s;"
 
-        # Executando a query de atualização
-        cursor_bd1.execute(update_query, values2o)
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.tipo_vaga (nome, id) 
+            VALUES (%s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET nome = EXCLUDED.nome;
+        """
         
-        # Se a query de atualização não tiver nenhuma linha alterada, então significa que os valores na tabela do 2o são novos
-        if cursor_bd1.rowcount == 0:
-            # query para inserir
-            insert_query = "INSERT INTO public.tipo_vaga(nome, id) VALUES (%s, %s);"
-
-            # Executando a query de insert
-            cursor_bd1.execute(insert_query, values2o)
+        # Executando o comando de upsert
+        cursor_bd1.execute(upsert_query, values2o)
 
     conn_bd1.commit()  # Commit das alterações no bd1
 
@@ -39,25 +37,24 @@ def permissao_vaga():
         # Lendo os valores de cada linha do dataframe que contém as informações da tabela tipo_vaga do 2ano
         values2o = (bool(df_tipo_vaga_bd2['permissao'][i]), df_tipo_vaga_bd2['id'][i], df_tipo_vaga_bd2['fk_vaga_id'][i])
 
-        # Query para atualizar a tabela do 1o com as informações do 2o
-        update_query = "UPDATE public.permissao_vaga SET permissao = %s WHERE id = %s;"
-
-        # Executando a query de atualização
-        cursor_bd1.execute(update_query, (values2o[0], values2o[1]))
-
-        # Se a query de atualização não tiver nenhuma linha alterada, então significa que os valores na tabela do 2o são novos
-        if cursor_bd1.rowcount == 0:
-            # query para inserir
-            insert_query = "INSERT INTO public.permissao_vaga(permissao, id, fk_vaga_id) VALUES (%s, %s, %s);"
-
-            # Executando a query de insert
-            cursor_bd1.execute(insert_query, values2o)
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.permissao_vaga (permissao, id, id_vaga) 
+            VALUES (%s, %s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET permissao = EXCLUDED.permissao;
+        """
+        
+        # Executando o comando de upsert
+        cursor_bd1.execute(upsert_query, values2o)
 
     # Queries para pegar os IDs da 
     cursor_bd2.execute("SELECT id FROM permissao_vaga;")
     ids_bd2 = [id_[0] for id_ in cursor_bd2.fetchall()]
 
     # Verificando a quantidade de IDs para deletar registros
+    delete_query = "DELETE FROM public.permissao_vaga"
+
     if ids_bd2:
         if len(ids_bd2) == 1:
             # Caso de um único ID, sem parênteses extras para evitar a vírgula
@@ -66,7 +63,7 @@ def permissao_vaga():
             # Caso de múltiplos IDs, utilizando IN com a tupla
             delete_query = f"DELETE FROM public.permissao_vaga WHERE id NOT IN {tuple(ids_bd2)}"
         
-        cursor_bd1.execute(delete_query)
+    cursor_bd1.execute(delete_query)
 
     conn_bd1.commit()  # Commit das alterações no bd1
 
@@ -80,19 +77,16 @@ def situacao_trabalhista():
         # Lendo os valores de cada linha do dataframe que contém as informações da tabela tipo_vaga do 2ano
         values2o = (df_tipo_vaga_bd2['nome'][i], df_tipo_vaga_bd2['id'][i])
         
-        # Query para atualizar a tabela do 1o com as informações do 2o
-        update_query = "UPDATE public.situacao_trabalhista SET nome = %s WHERE id = %s;"
-
-        # Executando a query de atualização
-        cursor_bd1.execute(update_query, values2o)
-
-        # Se a query de atualização não tiver nenhuma linha alterada, então significa que os valores na tabela do 2o são novos
-        if cursor_bd1.rowcount == 0:
-            # query para inserir
-            insert_query = "INSERT INTO public.situacao_trabalhista(nome, id) VALUES (%s, %s);"
-
-            # Executando a query de insert
-            cursor_bd1.execute(insert_query, values2o)
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.situacao_trabalhista (nome, id) 
+            VALUES (%s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET nome = EXCLUDED.nome;
+        """
+        
+        # Executando o comando de upsert
+        cursor_bd1.execute(upsert_query, values2o)
 
     conn_bd1.commit()  # Commit das alterações no bd1
 
@@ -105,19 +99,16 @@ def setor():
         # Lendo os valores de cada linha do dataframe que contém as informações da tabela tipo_vaga do 2ano
         values2o = (df_tipo_vaga_bd2['nome'][i], df_tipo_vaga_bd2['id'][i])
         
-        # Query para atualizar a tabela do 1o com as informações do 2o
-        update_query = "UPDATE public.setor SET nome = %s WHERE id = %s;"
-
-        # Executando a query de atualização
-        cursor_bd1.execute(update_query, values2o)
-
-        # Se a query de atualização não tiver nenhuma linha alterada, então significa que os valores na tabela do 2o são novos
-        if cursor_bd1.rowcount == 0:
-            # query para inserir
-            insert_query = "INSERT INTO public.setor(nome, id) VALUES (%s, %s);"
-
-            # Executando a query de insert
-            cursor_bd1.execute(insert_query, values2o)
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.setor (nome, id) 
+            VALUES (%s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET nome = EXCLUDED.nome;
+        """
+        
+        # Executando o comando de upsert
+        cursor_bd1.execute(upsert_query, values2o)
 
     conn_bd1.commit()  # Commit das alterações no bd1
 
@@ -130,24 +121,18 @@ def tipo_arquivo():
         # Lendo os valores de cada linha do dataframe que contém as informações da tabela tipo_vaga do 2ano
         values2o = (df_tipo_vaga_bd2['nome'][i], df_tipo_vaga_bd2['id'][i])
 
-        # Query para atualizar a tabela do 1o com as informações do 2o
-        update_query = "UPDATE public.tipo_arquivo SET nome = %s WHERE id = %s;"
-
-        # Executando a query de atualização
-        cursor_bd1.execute(update_query, values2o)
-
-        # Se a query de atualização não tiver nenhuma linha alterada, então significa que os valores na tabela do 2o são novos
-        if cursor_bd1.rowcount == 0:
-            # query para inserir
-            insert_query = "INSERT INTO public.tipo_arquivo(nome, id) VALUES (%s, %s);"
-
-            # Executando a query de insert
-            cursor_bd1.execute(insert_query, values2o)
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.tipo_arquivo (nome, id) 
+            VALUES (%s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET nome = EXCLUDED.nome;
+        """
+        
+        # Executando o comando de upsert
+        cursor_bd1.execute(upsert_query, values2o)
             
         conn_bd1.commit()  # Commit das alterações no bd1
-
-    conn_bd2.close()
-    conn_bd1.close()
 
 def permissao_curso():
 
@@ -158,18 +143,22 @@ def permissao_curso():
         # Lendo os valores de cada linha do dataframe
         values2o = (bool(df_permissao_curso['permissao'][i]), df_permissao_curso['id'][i], df_permissao_curso['fk_curso_id'][i])
 
-        # Query para atualizar a tabela do 1o com as informações do 2o
-        update_query = "UPDATE public.permissao_curso SET permissao = %s WHERE id = %s;"
-        cursor_bd1.execute(update_query, (values2o[0], values2o[1]))
-
-        # Se a query de atualização não tiver nenhuma linha alterada, insira os novos valores
-        if cursor_bd1.rowcount == 0:
-            insert_query = "INSERT INTO public.permissao_curso (permissao, id, fk_curso_id) VALUES (%s, %s, %s);"
-            cursor_bd1.execute(insert_query, values2o)
+        # Query para inserir ou atualizar, utilizando ON CONFLICT para evitar duplicidade
+        upsert_query = """
+            INSERT INTO public.permissao_curso (permissao, id, id_curso) 
+            VALUES (%s, %s, %s) 
+            ON CONFLICT (id) DO UPDATE 
+            SET permissao = EXCLUDED.permissao;
+        """
+        
+        # Executando o comando de upsert
+        cursor_bd1.execute(upsert_query, values2o)
 
     # Pegando os IDs da tabela permissao_vaga no 2o banco
     cursor_bd2.execute("SELECT id FROM permissao_curso;")
     ids_bd2 = [id_[0] for id_ in cursor_bd2.fetchall()]
+
+    delete_query = "DELETE FROM public.permissao_curso"
 
     # Verificando a quantidade de IDs para deletar registros
     if ids_bd2:
@@ -180,7 +169,7 @@ def permissao_curso():
             # Caso de múltiplos IDs, utilizando IN com a tupla
             delete_query = f"DELETE FROM public.permissao_curso WHERE id NOT IN {tuple(ids_bd2)}"
         
-        cursor_bd1.execute(delete_query)
+    cursor_bd1.execute(delete_query)
 
     # Commit das alterações no bd1
     conn_bd1.commit()
@@ -238,5 +227,6 @@ except Exception as e:
     print(f"Ocorreu um erro: {e}")
 
 finally:
-    conn_bd2.close()
+    # Fechando as conexões
     conn_bd1.close()
+    conn_bd2.close()
