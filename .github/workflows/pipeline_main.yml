@@ -28,9 +28,8 @@ jobs:
     - name: Deploy no EC2 - aws
       run: |
             echo "Conectando no EC2"
-            echo "${{secrets.AWS_KEY_G}}" > private_key && chmod 600 private_key
+            echo "${{ secrets.AWS_KEY_G }}" > private_key && chmod 600 private_key
             ssh -o StrictHostKeyChecking=no -i private_key ubuntu@ec2-3-229-11-148.compute-1.amazonaws.com "
               cd rpa/;
-              git remote set-url origin git@github.com:Incluses/rpa.git;
               git pull
             "
